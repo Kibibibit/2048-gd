@@ -5,23 +5,23 @@ const MAX_DEPTH: int = 2
 
 const NEIGHBOURS: Array[Vector2] = [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]
 
-func get_player_successor_states(game_state: GameState) -> Array[GameState]:
-	var out: Array[GameState] = []
+func get_player_successor_states(game_state: GameStateGD) -> Array[GameStateGD]:
+	var out: Array[GameStateGD] = []
 	for action in game_state.get_valid_actions():
 		out.append(game_state.duplicate().get_successor_state(action))
 	return out
 
 
-func evaluation_function(game_state: GameState) -> float:
+func evaluation_function(game_state: GameStateGD) -> float:
 	return game_state.free_slots.size()
 
 
-func pick_move(game_state: GameState) -> int:
-	var action = GameState.INVALID_ACTION
+func pick_move(game_state: GameStateGD) -> int:
+	var action = GameStateGD.INVALID_ACTION
 	var value:float = -INF
 	
 	for a in game_state.get_valid_actions():
-		var state: GameState = game_state.get_successor_state(a)
+		var state: GameStateGD = game_state.get_successor_state(a)
 		var new_value: float = expectimax(state, 0, false)
 		if (new_value > value):
 			value = new_value
@@ -30,7 +30,7 @@ func pick_move(game_state: GameState) -> int:
 	return action
 	
 
-func expectimax(game_state: GameState, depth: int, is_max: bool) -> float:
+func expectimax(game_state: GameStateGD, depth: int, is_max: bool) -> float:
 	
 	if (game_state.board_full() || depth >= MAX_DEPTH):
 		return evaluation_function(game_state)

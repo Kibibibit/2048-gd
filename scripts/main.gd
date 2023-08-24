@@ -12,17 +12,17 @@ var ai_controller: AIController = AIController.new()
 
 var tiles: Dictionary = {}
 
-var current_game_state: GameState
+var current_game_state: GameStateGD
 
 var animating: bool = false
-var current_action: int = GameState.INVALID_ACTION
+var current_action: int = GameStateGD.INVALID_ACTION
 var interactive: bool = true
 
 func _ready() -> void:
-	current_game_state = GameState.new()
+	current_game_state = GameStateGD.new()
 	current_game_state.added_tile.connect(_on_tile_spawn)
 	current_game_state.init()
-	var win_size = ((TILE_MARGIN+Tile.TILE_SIZE)*GameState.GRID_SIZE)+TILE_MARGIN
+	var win_size = ((TILE_MARGIN+Tile.TILE_SIZE)*GameStateGD.GRID_SIZE)+TILE_MARGIN
 	get_window().size = Vector2i(floori(win_size), floori(win_size)+24)
 	score_label.position = Vector2(0, win_size)
 
@@ -35,7 +35,7 @@ func _on_tile_spawn(index: int, value: int) -> void:
 
 
 func get_tile_position(index: int) -> Vector2:
-	var grid_pos: Vector2 = Vector2(index % GameState.GRID_SIZE, floori((index as float)/GameState.GRID_SIZE))
+	var grid_pos: Vector2 = Vector2(index % GameStateGD.GRID_SIZE, floori((index as float)/GameStateGD.GRID_SIZE))
 	return (grid_pos*Vector2(TILE_MARGIN+Tile.TILE_SIZE,TILE_MARGIN+Tile.TILE_SIZE)) + Vector2(TILE_MARGIN,TILE_MARGIN)
 
 
@@ -70,8 +70,8 @@ func on_animation_finish(action: int) -> void:
 func _draw() -> void:
 	var i = 0
 	var offset = Vector2((TILE_MARGIN as float)/4.0, (TILE_MARGIN as float)/4.0)
-	for x in GameState.GRID_SIZE:
-		for y in GameState.GRID_SIZE:
+	for x in GameStateGD.GRID_SIZE:
+		for y in GameStateGD.GRID_SIZE:
 			draw_rect(
 				Rect2(get_tile_position(i)-offset, Vector2(Tile.TILE_SIZE, Tile.TILE_SIZE)+(offset*2)),
 				Color.WEB_GRAY
@@ -90,7 +90,7 @@ func _process(delta: float) -> void:
 		if (all_tiles_done):
 			animating = false
 			on_animation_finish(current_action)
-			current_action = GameState.INVALID_ACTION
+			current_action = GameStateGD.INVALID_ACTION
 	elif(!interactive):
 		do_ai_action()
 
@@ -98,18 +98,18 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if (event is InputEventKey && !animating && interactive):
 		if (event.pressed):
-			var action: int = GameState.INVALID_ACTION
+			var action: int = GameStateGD.INVALID_ACTION
 			match (event.keycode):
 				KEY_UP,KEY_W,KEY_K:
-					action = GameState.ACTION_UP
+					action = GameStateGD.ACTION_UP
 				KEY_DOWN,KEY_S,KEY_J:
-					action = GameState.ACTION_DOWN
+					action = GameStateGD.ACTION_DOWN
 				KEY_LEFT,KEY_A,KEY_H:
-					action = GameState.ACTION_LEFT
+					action = GameStateGD.ACTION_LEFT
 				KEY_RIGHT,KEY_D,KEY_L:
-					action = GameState.ACTION_RIGHT
+					action = GameStateGD.ACTION_RIGHT
 				KEY_SPACE:
 					interactive = false
-			if (action != GameState.INVALID_ACTION):
+			if (action != GameStateGD.INVALID_ACTION):
 				on_action(action)
 				

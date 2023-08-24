@@ -1,5 +1,5 @@
 extends RefCounted
-class_name GameState
+class_name GameStateGD
 
 signal added_tile(index: int, value:int)
 
@@ -173,8 +173,8 @@ func _compress_tile_line(line: Array[int]) -> Array[int]:
 				tile_line[i] = 0
 	return tile_line
 
-func get_successor_state(action: int) -> GameState:
-	var out: GameState = GameState.new()
+func get_successor_state(action: int) -> GameStateGD:
+	var out: GameStateGD = GameStateGD.new()
 	var action_vector: Vector2 = vector_from_action(action)
 	
 	out.grid = grid.duplicate()
@@ -214,8 +214,8 @@ func get_successor_state(action: int) -> GameState:
 			out.free_slots.append(i)
 	return out
 
-func duplicate()->GameState:
-	var state: GameState = GameState.new()
+func duplicate()->GameStateGD:
+	var state: GameStateGD = GameStateGD.new()
 	state.grid = grid.duplicate()
 	state.free_slots = free_slots.duplicate()
 	state.score = score
@@ -227,11 +227,11 @@ func get_spawn_states()->Dictionary:
 		4: []
 	}
 	for free_index in free_slots:
-		var state2: GameState = duplicate()
+		var state2: GameStateGD = duplicate()
 		state2.free_slots.remove_at(state2.free_slots.find(free_index))
 		state2.grid[free_index] = 2
 		out[2].append(state2)
-		var state4: GameState = duplicate()
+		var state4: GameStateGD = duplicate()
 		state4.free_slots.remove_at(state4.free_slots.find(free_index))
 		state4.grid[free_index] = 2
 		out[4].append(state4)
