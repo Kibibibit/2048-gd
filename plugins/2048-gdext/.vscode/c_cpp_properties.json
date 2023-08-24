@@ -4,15 +4,14 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/godot-cpp/*",
-                "${workspaceFolder}/godot-cpp/include",
-                "${workspaceFolder}/godot-cpp/gdextension"
+                "${workspaceFolder}/src/*",
+                "${workspaceFolder}/godot-cpp/**"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "/usr/bin/g++",
             "cStandard": "c17",
             "cppStandard": "c++14",
-            "intelliSenseMode": "linux-clang-x64"
+            "intelliSenseMode": "linux-gcc-x64"
         }
     ],
     "version": 4
