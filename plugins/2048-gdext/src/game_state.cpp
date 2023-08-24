@@ -55,8 +55,7 @@ GameState::GameState()
     this->starting_tiles = 0;
 }
 
-GameState::~GameState()
-{
+GameState::~GameState(){
 }
 
 void GameState::init(int grid_size, int starting_tiles)
@@ -251,7 +250,6 @@ TypedArray<int> GameState::get_valid_actions()
                 break;
             }
         }
-
     }
     return valid_moves;
 }

@@ -59,10 +59,10 @@ func on_animation_finish() -> void:
 	for key in tiles.keys():
 		var tile: Tile = tiles[key]
 		remove_child(tile)
+		tile.queue_free()
 		tiles.erase(key)
 	game_state.tile_added.disconnect(_on_tile_spawn)
 	game_state.tile_moved.disconnect(_on_tile_move)
-	game_state.unreference()
 	game_state = next_game_state
 	game_state.tile_added.connect(_on_tile_spawn)
 	game_state.tile_moved.connect(_on_tile_move)
@@ -120,5 +120,3 @@ func _unhandled_input(event: InputEvent) -> void:
 			if (action != GameState.INVALID_ACTION):
 				on_action(action)
 				
-func _exit_tree():
-	game_state.unreference()
