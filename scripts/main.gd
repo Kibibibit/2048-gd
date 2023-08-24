@@ -37,8 +37,9 @@ func _on_tile_spawn(index: int, value: int) -> void:
 	add_child(t)
 
 func _on_tile_move(current_index: int, new_index: int) -> void:
-	var tile: Tile = tiles[current_index]
-	tile.animate_to(get_tile_position(new_index))
+	print(current_index, " ", new_index)
+	#wvar tile: Tile = tiles[current_index]
+	#tile.animate_to(get_tile_position(new_index))
 
 func get_tile_position(index: int) -> Vector2:
 	var grid_pos: Vector2 = Vector2(index % GameStateGD.GRID_SIZE, floori((index as float)/GameStateGD.GRID_SIZE))
@@ -48,6 +49,7 @@ func get_tile_position(index: int) -> Vector2:
 func on_action(action: int) -> void:
 	if (action in game_state.get_valid_actions()):
 		animating = true
+		print(tiles)
 		next_game_state = game_state.get_successor_state(action)
 		
 		
