@@ -32,7 +32,7 @@ func evaluation_function(game_state: GameState) -> float:
 		if (current > best):
 			best = current
 		grid = grid.rotate()
-	return pow(game_state.get_free_count(), best)
+	return pow(game_state.get_free_count(),best)
 		
 
 
