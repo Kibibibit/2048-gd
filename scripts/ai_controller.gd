@@ -16,16 +16,24 @@ func get_player_successor_states(game_state: GameState) -> Array[GameState]:
 
 func evaluation_function(game_state: GameState) -> float:
 	
-	var counts: Dictionary = {}
-	var data: Array[int] = game_state.get_grid().get_data()
-	var sum: float = 0
-	
-	for value in data:
-		if (value not in counts):
-			sum += pow(data.count(value),3)
-			counts[value] = value
-	
-	return sum
+	var best: int = -1
+	var grid: Grid2D = game_state.get_grid().duplicate()
+	for i in 4:
+		var current: int = 0
+		
+		for y in game_state.get_grid_size():
+			for x in game_state.get_grid_size()-1:
+				if (grid.get_at(x,y) >= grid.get_at(x+1,y)):
+					current += 1
+		for x in game_state.get_grid_size():
+			for y in game_state.get_grid_size()-1:
+				if (grid.get_at(x,y) >= grid.get_at(x,y+1)):
+					current += 1
+		if (current > best):
+			best = current
+		grid = grid.rotate()
+	return pow(game_state.get_free_count(), best)
+		
 
 
 func pick_move(game_state: GameState) -> int:
@@ -45,7 +53,7 @@ func pick_move(game_state: GameState) -> int:
 
 func expectimax(game_state: GameState, depth: int, is_max: bool) -> float:
 	
-	if (game_state.board_full() || depth >= MAX_DEPTH):
+	if (game_state.get_valid_actions().size() == 0|| depth >= MAX_DEPTH):
 		return evaluation_function(game_state)
 	var value: float = -INF
 	var next_depth: int = depth

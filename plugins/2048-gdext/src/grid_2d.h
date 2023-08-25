@@ -33,6 +33,7 @@ namespace godot
         bool no_zeros();
         TypedArray<int> get_data();
         Ref<Grid2D> duplicate();
+        Ref<Grid2D> rotate();
         TypedArray<Vector2i> get_positions_of(int value);
     };
 

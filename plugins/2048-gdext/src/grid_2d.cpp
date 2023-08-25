@@ -19,6 +19,8 @@ void Grid2D::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_data"), &Grid2D::get_data);
 
     ClassDB::bind_method(D_METHOD("duplicate"), &Grid2D::duplicate);
+
+    ClassDB::bind_method(D_METHOD("rotate"), &Grid2D::rotate);
 }
 
 Grid2D::Grid2D()
@@ -132,6 +134,24 @@ TypedArray<Vector2i> Grid2D::get_positions_of(int value)
         if (this->data->at(i) == value)
         {
             out.append(get_vector(i));
+        }
+    }
+    return out;
+}
+
+Ref<Grid2D> Grid2D::rotate()
+{
+    Ref<Grid2D> out;
+    out.instantiate();
+    out->set_size(Vector2i(this->size.y, this->size.x));
+    for (int x = 0; x < this->size.x; x++) {
+        for (int y = 0; y < this->size.y; y++) {
+
+            int nx = out->size.x - y - 1;
+            int ny = x;
+
+            out->set_at(get_at(x,y), nx, ny);
+
         }
     }
     return out;
