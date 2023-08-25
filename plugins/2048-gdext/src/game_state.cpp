@@ -1,7 +1,5 @@
-
 #include "game_state.h"
-#include <vector>
-#include <random>
+
 #include <time.h>
 
 using namespace godot;
@@ -9,130 +7,47 @@ using namespace godot;
 void GameState::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("init", "grid_size", "starting_tiles"), &GameState::init);
-    ClassDB::bind_method(D_METHOD("board_full"), &GameState::board_full);
-
     ClassDB::bind_method(D_METHOD("get_grid_size"), &GameState::get_grid_size);
-    ClassDB::bind_method(D_METHOD("set_grid_size", "grid_size"), &GameState::set_grid_size);
-    ClassDB::add_property("GameState", PropertyInfo(Variant::INT, "grid_size"), "set_grid_size", "get_grid_size");
-
     ClassDB::bind_method(D_METHOD("get_starting_tiles"), &GameState::get_starting_tiles);
-    ClassDB::bind_method(D_METHOD("set_starting_tiles", "starting_tiles"), &GameState::set_starting_tiles);
-    ClassDB::add_property("GameState", PropertyInfo(Variant::INT, "starting_tiles"), "set_starting_tiles", "get_starting_tiles");
+    ClassDB::bind_method(D_METHOD("get_grid"), &GameState::get_grid);
 
     ClassDB::bind_method(D_METHOD("get_score"), &GameState::get_score);
     ClassDB::bind_method(D_METHOD("set_score", "score"), &GameState::set_score);
     ClassDB::add_property("GameState", PropertyInfo(Variant::INT, "score"), "set_score", "get_score");
 
-    ClassDB::bind_method(D_METHOD("vector_from_action", "action"), &GameState::vector_from_action);
-    ClassDB::bind_method(D_METHOD("get_index_vector", "index"), &GameState::get_index_vector);
-    ClassDB::bind_method(D_METHOD("get_vector_index", "vector"), &GameState::get_vector_index);
-    ClassDB::bind_method(D_METHOD("get_at_vector", "vector"), &GameState::get_at_vector);
-    ClassDB::bind_method(D_METHOD("get_at_index", "index"), &GameState::get_at_index);
-
-    ClassDB::bind_method(D_METHOD("spawn_starting_tiles"), &GameState::spawn_starting_tiles);
+    ClassDB::bind_method(D_METHOD("board_full"), &GameState::board_full);
     ClassDB::bind_method(D_METHOD("spawn_tile"), &GameState::spawn_tile);
+    ClassDB::bind_method(D_METHOD("spawn_starting_tiles"), &GameState::spawn_starting_tiles);
 
     ClassDB::bind_method(D_METHOD("get_valid_actions"), &GameState::get_valid_actions);
-    ClassDB::bind_method(D_METHOD("get_successor_state", "action"), &GameState::get_successor_state);
+    ClassDB::bind_method(D_METHOD("apply_action"), &GameState::apply_action);
+
     ClassDB::bind_method(D_METHOD("duplicate"), &GameState::duplicate);
 
-    ClassDB::bind_integer_constant("GameState", "Actions", "INVALID_ACTION", GameState::INVALID_ACTION);
-    ClassDB::bind_integer_constant("GameState", "Actions", "ACTION_UP", GameState::ACTION_UP);
-    ClassDB::bind_integer_constant("GameState", "Actions", "ACTION_DOWN", GameState::ACTION_DOWN);
-    ClassDB::bind_integer_constant("GameState", "Actions", "ACTION_LEFT", GameState::ACTION_LEFT);
-    ClassDB::bind_integer_constant("GameState", "Actions", "ACTION_RIGHT", GameState::ACTION_RIGHT);
+    ClassDB::bind_method(D_METHOD("get_free_count"), &GameState::get_free_count);
+    ClassDB::bind_method(D_METHOD("get_spawn_states"), &GameState::get_spawn_states);
 
-    ADD_SIGNAL(MethodInfo("tile_added", PropertyInfo(Variant::INT, "index"), PropertyInfo(Variant::INT, "value")));
-    ADD_SIGNAL(MethodInfo("tile_moved", PropertyInfo(Variant::INT, "current_index"), PropertyInfo(Variant::INT, "new_index")));
+    ClassDB::bind_integer_constant("GameState", "Actions", INVALID_ACTION_LABEL, INVALID_ACTION);
+    ClassDB::bind_integer_constant("GameState", "Actions", ACTION_UP_LABEL, ACTION_UP);
+    ClassDB::bind_integer_constant("GameState", "Actions", ACTION_DOWN_LABEL, ACTION_DOWN);
+    ClassDB::bind_integer_constant("GameState", "Actions", ACTION_LEFT_LABEL, ACTION_LEFT);
+    ClassDB::bind_integer_constant("GameState", "Actions", ACTION_RIGHT_LABEL, ACTION_RIGHT);
+
+    ADD_SIGNAL(MethodInfo(SIGNAL_TILE_MOVED, PropertyInfo(Variant::VECTOR2I, "prev_pos"), PropertyInfo(Variant::VECTOR2I, "next_pos")));
+    ADD_SIGNAL(MethodInfo(SIGNAL_TILE_ADDED, PropertyInfo(Variant::VECTOR2I, "pos"), PropertyInfo(Variant::INT, "value")));
 }
 
 GameState::GameState()
 {
-    this->grid = TypedArray<int>();
-    this->free_slots = TypedArray<int>();
-    this->score = 0;
+    this->grid.instantiate();
     this->grid_size = 0;
     this->starting_tiles = 0;
-}
-
-GameState::~GameState(){
-}
-
-void GameState::init(int grid_size, int starting_tiles)
-{
-    this->grid_size = grid_size;
-    this->starting_tiles = starting_tiles;
     this->score = 0;
-
-    for (int i = 0; i < grid_size * grid_size; i++)
-    {
-        this->grid.push_back(0);
-        this->free_slots.push_back(i);
-    }
 }
 
-bool GameState::board_full()
-{
-    return this->free_slots.is_empty();
-}
+GameState::~GameState() {}
 
-bool GameState::spawn_tile()
-{
-    if (!board_full())
-    {
-        srand(time(NULL));
-        float roll = ((float)rand()) / RAND_MAX;
-        int value = 2;
-        if (roll < 1.0 / 3.0)
-        {
-            value = 4;
-        }
-        srand(time(NULL));
-        int free_index = rand() % this->free_slots.size();
-        int index = this->free_slots[free_index];
-        this->free_slots.remove_at(free_index);
-        this->grid[index] = value;
-        emit_signal("tile_added", index, value);
-        return true;
-    }
-    return false;
-}
-
-void GameState::spawn_starting_tiles()
-{
-    for (int i = 0; i < this->starting_tiles; i++) {
-        spawn_tile();
-    }
-}
-
-int GameState::get_score()
-{
-    return this->score;
-}
-void GameState::set_score(int score)
-{
-    this->score = score;
-}
-
-int GameState::get_starting_tiles()
-{
-    return this->starting_tiles;
-}
-void GameState::set_starting_tiles(int starting_tiles)
-{
-    this->starting_tiles = starting_tiles;
-}
-
-int GameState::get_grid_size()
-{
-    return this->grid_size;
-}
-void GameState::set_grid_size(int grid_size)
-{
-    this->grid_size = grid_size;
-}
-
-Vector2i GameState::vector_from_action(int action)
+Vector2i GameState::get_action_vector(int action)
 {
     switch (action)
     {
@@ -148,134 +63,235 @@ Vector2i GameState::vector_from_action(int action)
         return Vector2i(0, 0);
     }
 }
-Vector2i GameState::get_index_vector(int index)
+
+void GameState::init(int grid_size, int starting_tiles)
 {
-    return Vector2i(
-        index % this->grid_size, (int)floor((double)index / this->grid_size));
-}
-int GameState::get_vector_index(Vector2i vector)
-{
-    return (vector.y*this->grid_size) + vector.x;
-}
-int GameState::get_at_vector(Vector2i vector)
-{
-    return this->grid[get_vector_index(vector)];
-}
-int GameState::get_at_index(int index)
-{
-    return this->grid[index];
+    this->grid_size = grid_size;
+    this->starting_tiles = starting_tiles;
+    this->grid->set_size(Vector2i(grid_size, grid_size));
+    this->score = 0;
 }
 
-TypedArray<int> GameState::get_tile_line(Vector2i tile, Vector2i action_vector)
+int GameState::get_grid_size()
 {
-    TypedArray<int> out = TypedArray<int>();
-    if (action_vector.x != 0) {
-        for (int x = 0; x < this->grid_size; x++) {
-            out.push_back(this->get_at_vector(Vector2i(x, tile.y)));
+    return this->grid_size;
+}
+
+int GameState::get_starting_tiles()
+{
+    return this->starting_tiles;
+}
+
+Ref<Grid2D> GameState::get_grid()
+{
+    return this->grid->duplicate();
+}
+
+int GameState::get_score()
+{
+    return score;
+}
+
+void GameState::set_score(int score)
+{
+    this->score = score;
+}
+
+bool GameState::board_full()
+{
+    return this->grid->no_zeros();
+}
+
+void GameState::spawn_tile()
+{
+    if (!board_full())
+    {
+        srand(time(NULL));
+        float roll = ((float)rand()) / RAND_MAX;
+        int value = 2;
+        if (roll < 1.0 / 3.0)
+        {
+            value = 4;
         }
-    } else if (action_vector.y != 0) {
-        for (int y = 0; y < this->grid_size; y++) {
-            out.push_back(this->get_at_vector(Vector2i(tile.x, y)));
-        }
+        srand(time(NULL));
+
+        TypedArray<Vector2i> free_slots = this->grid->get_positions_of(0);
+        Vector2i pos = free_slots.pick_random();
+        this->grid->set_at_v(value, pos);
+        emit_signal(SIGNAL_TILE_ADDED, pos, value);
     }
-    return out;
 }
 
-
-TypedArray<int> GameState::compress_tile_line(TypedArray<int> line) {
-    TypedArray<int> tile_line = TypedArray<int>();
-    for (int i = 0; i < line.size(); i++) {
-        tile_line.push_back(line[i]);
+void GameState::spawn_starting_tiles()
+{
+    for (int i = 0; i < starting_tiles; i++)
+    {
+        spawn_tile();
     }
-
-    TypedArray<int> added_tiles = TypedArray<int>();
-
-    for (int i = 0; i < tile_line.size(); i++) {
-        int new_index = 0;
-        bool added = false;
-
-        for (int j = 0; j < i; j++) {
-            int check_index = i-j-1;
-
-            if (tile_line[check_index] == tile_line[i] && added_tiles.find(check_index) == -1) {
-                new_index = check_index;
-                added = true;
-                added_tiles.push_back(new_index);
-                break;
-            } else if ((tile_line[check_index] != tile_line[i] && (int32_t) tile_line[check_index] != 0) ||  added_tiles.find(check_index) != -1) {
-                new_index = check_index+1;
-                break;
-            }
-        }
-        tile_line[new_index] = tile_line[i];
-        if (added) {
-            int multiplied_value = (int32_t)tile_line[new_index];
-            multiplied_value *= 2;
-            tile_line[new_index] = multiplied_value;
-            this->score += multiplied_value;
-        }
-        if (i != new_index) {
-            emit_signal("tile_moved", i, new_index);
-            tile_line[i] = 0;
-        }
-    }
-    return tile_line;
 }
-
 
 TypedArray<int> GameState::get_valid_actions()
 {
-    TypedArray<int> valid_moves = TypedArray<int>();
-    for (int action = ACTION_UP;  action <= ACTION_RIGHT; action++ ) {
-        Vector2i action_vector = vector_from_action(action);
-        bool valid = false;
+    TypedArray<int> out = TypedArray<int>();
+    for (int action = ACTION_UP; action <= ACTION_RIGHT; action++)
+    {
+        for (int x = 0; x < this->grid_size; x++)
+        {
+            bool valid = false;
+            for (int y = 0; y < this->grid_size; y++)
+            {
 
-        for (int x = 0; x < this->grid_size; x ++) {
-            for (int y = 0; y < this->grid_size; y++) {
-                Vector2i tile_vector = Vector2i(x,y);
-                int value = get_at_vector(tile_vector);
-                if (value != 0) {
-                    Vector2i adj_vector = tile_vector+action_vector;
-                    if (adj_vector.x >= 0 && adj_vector.y >= 0 && adj_vector.x < this->grid_size && adj_vector.y < this->grid_size) {
-                        int adj_value = get_at_vector(adj_vector);
-                        if (adj_value == 0 || value == adj_value) {
-                            valid_moves.push_back(action);
+                Vector2i tile = Vector2i(x, y);
+                if (this->grid->get_at_v(tile) != 0)
+                {
+                    Vector2i action_vector = get_action_vector(action);
+                    Vector2i check_vector = action_vector + tile;
+                    if (check_vector.x >= 0 && check_vector.y >= 0 && check_vector.x < this->grid_size && check_vector.y < this->grid_size)
+                    {
+                        int check_value = this->grid->get_at_v(check_vector);
+                        if (check_value == 0 || check_value == this->grid->get_at_v(tile))
+                        {
                             valid = true;
+                            out.append(action);
                             break;
                         }
                     }
                 }
             }
-            if (valid) {
+            if (valid)
+            {
                 break;
             }
         }
     }
-    return valid_moves;
+
+    return out;
 }
 
-Ref<GameState> GameState::get_successor_state(int action)
+void GameState::apply_action(int action)
 {
-    return this->duplicate();
+    Vector2i action_vector = get_action_vector(action);
+    TypedArray<Vector2i> added_tiles = TypedArray<Vector2i>();
+
+    TypedArray<Vector2i> pos2 = this->grid->get_positions_of(2);
+
+    bool in_reverse = action == ACTION_DOWN || action == ACTION_RIGHT;
+
+    for (int x = 0; x < this->grid_size; x++)
+    {
+        for (int y = 0; y < this->grid_size; y++)
+        {
+
+            int t_x = x;
+            int t_y = y;
+
+            if (in_reverse)
+            {
+                t_x = this->grid_size - x - 1;
+                t_y = this->grid_size - y - 1;
+            }
+
+            Vector2i tile = Vector2i(t_x, t_y);
+
+            int tile_value = grid->get_at_v(tile);
+
+            if (tile_value != 0)
+            {
+                Vector2i check_pos = Vector2i(tile) + action_vector;
+                bool added = false;
+                while (check_pos.x >= 0 && check_pos.y >= 0 && check_pos.x < this->grid_size && check_pos.y < this->grid_size)
+                {
+
+                    int check_value = grid->get_at_v(check_pos);
+
+                    if (check_value == tile_value && added_tiles.find(check_pos) == -1)
+                    {
+                        added = true;
+                        added_tiles.append(check_pos);
+                        break;
+                    }
+                    if ((check_value != tile_value && check_value != 0) || added_tiles.find(check_pos) >= 0)
+                    {
+                        check_pos -= action_vector;
+                        break;
+                    }
+                    check_pos += action_vector;
+                }
+                if (check_pos.x < 0)
+                {
+                    check_pos.x = 0;
+                }
+                if (check_pos.y < 0)
+                {
+                    check_pos.y = 0;
+                }
+                if (check_pos.x >= this->grid_size)
+                {
+                    check_pos.x = this->grid_size - 1;
+                }
+                if (check_pos.y >= this->grid_size)
+                {
+                    check_pos.y = this->grid_size - 1;
+                }
+
+                this->grid->set_at_v(tile_value, check_pos);
+                if (added)
+                {
+                    this->grid->set_at_v(tile_value * 2, check_pos);
+                    this->score += tile_value * 2;
+                }
+                if (check_pos != tile)
+                {
+                    this->grid->set_at_v(0, tile);
+                    emit_signal(SIGNAL_TILE_MOVED, tile, check_pos);
+                }
+            }
+        }
+    }
 }
+
 Ref<GameState> GameState::duplicate()
 {
     Ref<GameState> out;
     out.instantiate();
-    out->score = this->score;
-    out->grid_size = this->grid_size;
-    out->starting_tiles = this->starting_tiles;
-    out->free_slots = TypedArray<int>();
-    out->grid = TypedArray<int>();
-    for (int i = 0; i < grid.size(); i++) {
-        out->grid.push_back(this->grid[i]);
-    }
-    for (int i = 0; i < free_slots.size(); i++) {
-        out->free_slots.push_back(this->free_slots[i]);
-    }
+
+    out->init(this->grid_size, this->starting_tiles);
+    out->set_score(score);
+    out->grid = this->grid->duplicate();
     return out;
 }
-std::unordered_map<int, std::vector<GameState>> GameState::get_spawn_states()
+
+int GameState::get_free_count()
 {
-    return std::unordered_map<int, std::vector<GameState>>();
+    return this->grid->get_positions_of(0).size();
+}
+
+Dictionary GameState::get_spawn_states()
+{
+    Dictionary out = Dictionary();
+
+    TypedArray<GameState> states2 = TypedArray<GameState>();
+    TypedArray<GameState> states4 = TypedArray<GameState>();
+
+    TypedArray<Vector2i> zeros = grid->get_positions_of(0);
+    for (int i = 0; i < zeros.size(); i++)
+    {
+
+        Ref<Grid2D> grid2 = grid->duplicate();
+        grid2->set_at_v(2, zeros[i]);
+        Ref<GameState> state2 = duplicate();
+        state2->grid = grid2;
+
+        Ref<Grid2D> grid4 = grid->duplicate();
+        grid4->set_at_v(4, zeros[i]);
+        Ref<GameState> state4 = duplicate();
+
+        states2.append(state2);
+        states4.append(state4);
+    }
+
+    out[2] = states2;
+    out[4] = states4;
+
+    return out;
 }
