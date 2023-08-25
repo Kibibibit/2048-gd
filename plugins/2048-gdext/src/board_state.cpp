@@ -203,7 +203,7 @@ void BoardState::apply_action(int action)
                         added_tiles.append(check_pos);
                         break;
                     }
-                    if (check_value != tile_value && check_value != 0)
+                    if ((check_value != tile_value && check_value != 0) || added_tiles.find(check_pos) >= 0)
                     {
                         check_pos -= action_vector;
                         break;
