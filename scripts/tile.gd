@@ -80,12 +80,14 @@ func _init( p_value: int):
 func _ready():
 	target_position = position 
 
-func animate_to(pos: Vector2) -> void:
-	target_position = pos
+func animate_to() -> void:
+	animating = true
 
 func do_animation_tick(delta: float) -> bool:
-	position = position.move_toward(target_position, delta)
-	return position.is_equal_approx(target_position)
+	if (animating):
+		position = position.move_toward(target_position, delta)
+		return position.is_equal_approx(target_position)
+	return true
 
 func _draw() -> void:
 	for corner in CORNERS:

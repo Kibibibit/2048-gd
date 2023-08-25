@@ -12,6 +12,8 @@ var ai_controller: AIController = AIController.new()
 
 var tiles: Dictionary = {}
 
+var anim_queue: Array[Callable]
+
 
 var game_state: GameState
 
@@ -38,7 +40,9 @@ func _on_tile_spawn(pos: Vector2i, value: int) -> void:
 
 func _on_tile_move(prev_pos: Vector2i, new_pos: Vector2i) -> void:
 	var tile: Tile = tiles[get_tile_key(prev_pos)]
-	tile.animate_to(get_tile_position(new_pos))
+	tile.target_position = get_tile_position(new_pos)
+	anim_queue.append(tile.animate_to)
+	
 
 func get_tile_key(pos: Vector2i) -> int:
 	return (game_state.get_grid_size() * pos.y) + pos.x;
@@ -51,6 +55,10 @@ func on_action(action: int) -> void:
 	if (action in game_state.get_valid_actions()):
 		animating = true
 		game_state.apply_action(action)
+		
+		while !anim_queue.is_empty():
+			var c: Callable = anim_queue.pop_front()
+			c.call()
 		
 		
 func do_ai_action() -> void:

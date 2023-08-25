@@ -15,7 +15,17 @@ func get_player_successor_states(game_state: GameState) -> Array[GameState]:
 
 
 func evaluation_function(game_state: GameState) -> float:
-	return game_state.score as float
+	
+	var counts: Dictionary = {}
+	var data: Array[int] = game_state.get_grid().get_data()
+	var sum: float = 0
+	
+	for value in data:
+		if (value not in counts):
+			sum += pow(data.count(value),3)
+			counts[value] = value
+	
+	return sum
 
 
 func pick_move(game_state: GameState) -> int:
