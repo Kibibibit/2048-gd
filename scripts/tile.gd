@@ -54,7 +54,6 @@ const COLOR_MAP: Dictionary = {
 var animating: bool = false
 var target_position: Vector2
 
-var index: int
 var value: int
 
 var font: SystemFont
@@ -63,8 +62,7 @@ var font_offset: Vector2
 var color: Color
 
 
-func _init(p_index: int, p_value: int):
-	index = p_index
+func _init( p_value: int):
 	value = p_value
 	font = SystemFont.new()
 	font.font_names = ["Calibri"]

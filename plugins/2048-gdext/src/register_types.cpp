@@ -1,6 +1,8 @@
 #include "register_types.h"
 
 #include "game_state.h"
+#include "grid_2d.h"
+#include "board_state.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -15,6 +17,8 @@ void initialize_example_module(ModuleInitializationLevel p_level) {
     }
 
     ClassDB::register_class<GameState>();
+    ClassDB::register_class<Grid2D>();
+    ClassDB::register_class<BoardState>();
 }
 
 void uninitialize_example_module(ModuleInitializationLevel p_level) {
