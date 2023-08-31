@@ -5,9 +5,14 @@
 [node name="Main" type="Node2D"]
 script = ExtResource("1_jycjh")
 
-[node name="Label" type="Label" parent="."]
-offset_left = 313.0
-offset_top = 16.0
-offset_right = 356.0
-offset_bottom = 42.0
-text = "Score"
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_right = 61.0
+offset_bottom = 56.0
+
+[node name="ScoreLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Score: 0"
+
+[node name="HLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "H: 0"

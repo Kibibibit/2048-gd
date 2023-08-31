@@ -3,7 +3,17 @@ class_name AIController
 
 const MAX_DEPTH: int = 2
 
+const H_SCORE: int = 0
+const H_FREE_SPACE: int = 1
+const H_MONOTINICITY: int = 2
+const H_SNAKE_CHAIN: int = 3
+
 const NEIGHBOURS: Array[Vector2] = [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]
+
+var heuristic: int
+
+func _init(p_heuristic: int):
+	heuristic = p_heuristic
 
 func get_player_successor_states(game_state: GameState) -> Array[GameState]:
 	var out: Array[GameState] = []
@@ -15,7 +25,45 @@ func get_player_successor_states(game_state: GameState) -> Array[GameState]:
 
 
 func evaluation_function(game_state: GameState) -> float:
+	match (heuristic):
+		H_SCORE:
+			return game_state.score
+		H_FREE_SPACE:
+			return game_state.get_free_count()
+		H_MONOTINICITY:
+			return monotinicity(game_state)
+		H_SNAKE_CHAIN:
+			return snake_chain(game_state)
+		_:
+			return 0
+
+
+func snake_chain(game_state: GameState) -> float:
+	var best: int = -1
+	var grid: Grid2D = game_state.get_grid().duplicate()
 	
+	for i in 4:
+		var current: int = 0
+		var prev_tile: int = -1
+		for _y in game_state.get_grid_size():
+			var y: int = game_state.get_grid_size()-_y-1
+			for x in game_state.get_grid_size():
+				var tile_value = grid.get_at(x,y)
+				if (prev_tile == -1):
+					prev_tile = tile_value
+				elif(prev_tile != 0):
+					if (tile_value == (prev_tile as float)/2.0):
+						current += 2
+					elif (tile_value < prev_tile):
+						current += 1
+					
+		if (current > best):
+			best = current
+		grid = grid.rotate()
+	
+	return best
+
+func monotinicity(game_state: GameState) -> float:
 	var best: int = -1
 	var grid: Grid2D = game_state.get_grid().duplicate()
 	for i in 4:
@@ -32,8 +80,7 @@ func evaluation_function(game_state: GameState) -> float:
 		if (current > best):
 			best = current
 		grid = grid.rotate()
-	return pow(game_state.get_free_count(),best)
-		
+	return best
 
 
 func pick_move(game_state: GameState) -> int:

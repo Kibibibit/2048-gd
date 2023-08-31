@@ -5,10 +5,16 @@ const TILE_MARGIN: float = 4.0
 const ANIMATION_SPEED: float = 1000.0
 
 @onready
-var score_label: Label = $Label
+var ui_box: VBoxContainer = $VBoxContainer
 
 @onready
-var ai_controller: AIController = AIController.new()
+var h_label: Label = $VBoxContainer/HLabel
+
+@onready
+var score_label: Label = $VBoxContainer/ScoreLabel
+
+@onready
+var ai_controller: AIController = AIController.new(AIController.H_SNAKE_CHAIN)
 
 var tiles: Dictionary = {}
 
@@ -28,9 +34,9 @@ func _ready() -> void:
 	game_state.spawn_starting_tiles()
 	
 	var win_size = ((TILE_MARGIN+Tile.TILE_SIZE)*game_state.get_grid_size())+TILE_MARGIN
-	get_window().size = Vector2i(floori(win_size), floori(win_size)+24)
-	score_label.position = Vector2(0, win_size)
-	score_label.text = "Score: 0"
+	get_window().size = Vector2i(floori(win_size), floori(win_size)+52)
+	ui_box.position = Vector2(0, win_size)
+	ui_box.size.x = win_size
 
 func _on_tile_spawn(pos: Vector2i, value: int) -> void:
 	var t: Tile = Tile.new(value);
@@ -73,6 +79,7 @@ func on_animation_finish() -> void:
 		tiles.erase(key)
 
 	score_label.text = "Score: %s"%game_state.score
+	h_label.text = "H: %s"%ai_controller.evaluation_function(game_state)
 	
 	for x in game_state.get_grid_size():
 		for y in game_state.get_grid_size():
