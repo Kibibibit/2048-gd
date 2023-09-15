@@ -17,7 +17,12 @@ func _init(p_heuristic: int):
 
 func get_player_successor_states(game_state: GameState) -> Array[GameState]:
 	var out: Array[GameState] = []
-	for action in game_state.get_valid_actions():
+	var actions = game_state.get_valid_actions()
+	if (actions.size() > 1):
+		var up_index = actions.find(GameState.ACTION_UP)
+		if (up_index != -1):
+				actions.remove_at(up_index)
+	for action in actions:
 		var state: GameState = game_state.duplicate()
 		state.apply_action(action)
 		out.append(state)
@@ -64,10 +69,10 @@ func snake_chain(game_state: GameState) -> float:
 	return best
 
 func monotinicity(game_state: GameState) -> float:
-	var best: int = -1
+	var best: float = -1
 	var grid: Grid2D = game_state.get_grid().duplicate()
 	for i in 4:
-		var current: int = 0
+		var current: float = 0
 		
 		for y in game_state.get_grid_size():
 			for x in game_state.get_grid_size()-1:
@@ -87,7 +92,13 @@ func pick_move(game_state: GameState) -> int:
 	var action : int = GameState.INVALID_ACTION as int
 	var value:float = -INF
 	
-	for a in game_state.get_valid_actions():
+	var actions = game_state.get_valid_actions()
+	if (actions.size() > 1):
+		var up_index = actions.find(GameState.ACTION_UP)
+		if (up_index != -1):
+				actions.remove_at(up_index)
+	
+	for a in actions:
 		var state: GameState = game_state.duplicate()
 		state.apply_action(a)
 		var new_value: float = expectimax(state, 0, false)
@@ -109,7 +120,7 @@ func expectimax(game_state: GameState, depth: int, is_max: bool) -> float:
 		value = INF
 	
 	if (is_max):
-		for state in  get_player_successor_states(game_state):
+		for state in get_player_successor_states(game_state):
 			value = max(value, expectimax(state, next_depth, false))
 	else:
 		var spawn_states: Dictionary = game_state.get_spawn_states()

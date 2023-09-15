@@ -85,7 +85,7 @@ func animate_to() -> void:
 
 func do_animation_tick(delta: float) -> bool:
 	if (animating):
-		position = position.move_toward(target_position, delta)
+		position = position.move_toward(target_position, delta*2.0)
 		return position.is_equal_approx(target_position)
 	return true
 
