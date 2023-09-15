@@ -7,10 +7,13 @@ const H_SCORE: int = 0
 const H_FREE_SPACE: int = 1
 const H_MONOTINICITY: int = 2
 const H_SNAKE_CHAIN: int = 3
+const H_CUSTOM: int = 4
 
 const NEIGHBOURS: Array[Vector2] = [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]
 
 var heuristic: int
+
+var no_up: bool = true
 
 func _init(p_heuristic: int):
 	heuristic = p_heuristic
@@ -18,10 +21,11 @@ func _init(p_heuristic: int):
 func get_player_successor_states(game_state: GameState) -> Array[GameState]:
 	var out: Array[GameState] = []
 	var actions = game_state.get_valid_actions()
-	if (actions.size() > 1):
-		var up_index = actions.find(GameState.ACTION_UP)
-		if (up_index != -1):
-				actions.remove_at(up_index)
+	if (no_up):
+		if (actions.size() > 1):
+			var up_index = actions.find(GameState.ACTION_UP)
+			if (up_index != -1):
+					actions.remove_at(up_index)
 	for action in actions:
 		var state: GameState = game_state.duplicate()
 		state.apply_action(action)
@@ -39,6 +43,8 @@ func evaluation_function(game_state: GameState) -> float:
 			return monotinicity(game_state)
 		H_SNAKE_CHAIN:
 			return snake_chain(game_state)
+		H_CUSTOM:
+			return custom(game_state)
 		_:
 			return 0
 
@@ -71,6 +77,8 @@ func snake_chain(game_state: GameState) -> float:
 func monotinicity(game_state: GameState) -> float:
 	var best: float = -1
 	var grid: Grid2D = game_state.get_grid().duplicate()
+	if (game_state.get_free_count() < float(grid.size.x * grid.size.y)*0.35):
+		return game_state.get_free_count()
 	for i in 4:
 		var current: float = 0
 		
@@ -88,15 +96,25 @@ func monotinicity(game_state: GameState) -> float:
 	return best
 
 
+
+func custom(game_state: GameState) -> float:
+	var grid: Grid2D = game_state.get_grid().duplicate()
+	var score: float = 0.0
+	for y in game_state.get_grid_size():
+		for x in game_state.get_grid_size():
+			score +=  grid.get_at(x,y)*x*y
+	return score*game_state.get_free_count()
+	
 func pick_move(game_state: GameState) -> int:
 	var action : int = GameState.INVALID_ACTION as int
 	var value:float = -INF
 	
 	var actions = game_state.get_valid_actions()
-	if (actions.size() > 1):
-		var up_index = actions.find(GameState.ACTION_UP)
-		if (up_index != -1):
-				actions.remove_at(up_index)
+	if (no_up):
+		if (actions.size() > 1):
+			var up_index = actions.find(GameState.ACTION_UP)
+			if (up_index != -1):
+					actions.remove_at(up_index)
 	
 	for a in actions:
 		var state: GameState = game_state.duplicate()

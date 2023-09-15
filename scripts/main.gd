@@ -14,7 +14,7 @@ var h_label: Label = $VBoxContainer/HLabel
 var score_label: Label = $VBoxContainer/ScoreLabel
 
 @onready
-var ai_controller: AIController = AIController.new(AIController.H_MONOTINICITY)
+var ai_controller: AIController = AIController.new(AIController.H_CUSTOM)
 
 var tiles: Dictionary = {}
 
