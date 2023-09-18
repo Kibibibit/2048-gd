@@ -9,11 +9,18 @@ const H_MONOTINICITY: int = 2
 const H_SNAKE_CHAIN: int = 3
 const H_CUSTOM: int = 4
 
+
+const ACTION_WEIGHTS: Dictionary = {
+	GameState.ACTION_UP: 0.01,
+	GameState.ACTION_LEFT: 0.8,
+	GameState.ACTION_DOWN: 1.0,
+	GameState.ACTION_RIGHT: 1.0
+}
+
 const NEIGHBOURS: Array[Vector2] = [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]
 
 var heuristic: int
 
-var no_up: bool = true
 
 func _init(p_heuristic: int):
 	heuristic = p_heuristic
@@ -21,11 +28,7 @@ func _init(p_heuristic: int):
 func get_player_successor_states(game_state: GameState) -> Array[GameState]:
 	var out: Array[GameState] = []
 	var actions = game_state.get_valid_actions()
-	if (no_up):
-		if (actions.size() > 1):
-			var up_index = actions.find(GameState.ACTION_UP)
-			if (up_index != -1):
-					actions.remove_at(up_index)
+
 	for action in actions:
 		var state: GameState = game_state.duplicate()
 		state.apply_action(action)
@@ -110,16 +113,12 @@ func pick_move(game_state: GameState) -> int:
 	var value:float = -INF
 	
 	var actions = game_state.get_valid_actions()
-	if (no_up):
-		if (actions.size() > 1):
-			var up_index = actions.find(GameState.ACTION_UP)
-			if (up_index != -1):
-					actions.remove_at(up_index)
 	
 	for a in actions:
 		var state: GameState = game_state.duplicate()
 		state.apply_action(a)
 		var new_value: float = expectimax(state, 0, false)
+		new_value *= ACTION_WEIGHTS[a]
 		if (new_value > value):
 			value = new_value
 			action = a as int
