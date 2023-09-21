@@ -12,7 +12,7 @@ const H_CUSTOM: int = 4
 
 const ACTION_WEIGHTS: Dictionary = {
 	GameState.ACTION_UP: 0.01,
-	GameState.ACTION_LEFT: 0.8,
+	GameState.ACTION_LEFT: 0.9,
 	GameState.ACTION_DOWN: 1.0,
 	GameState.ACTION_RIGHT: 1.0
 }

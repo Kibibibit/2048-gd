@@ -20,7 +20,7 @@ void GameState::_bind_methods()
     ClassDB::bind_method(D_METHOD("spawn_starting_tiles"), &GameState::spawn_starting_tiles);
 
     ClassDB::bind_method(D_METHOD("get_valid_actions"), &GameState::get_valid_actions);
-    ClassDB::bind_method(D_METHOD("apply_action"), &GameState::apply_action);
+    ClassDB::bind_method(D_METHOD("apply_action", "action"), &GameState::apply_action);
 
     ClassDB::bind_method(D_METHOD("duplicate"), &GameState::duplicate);
 
@@ -62,6 +62,10 @@ Vector2i GameState::get_action_vector(int action)
     default:
         return Vector2i(0, 0);
     }
+}
+
+void GameState::_init(int grid_size, int starting_tiles) {
+    this->init(grid_size, starting_tiles);
 }
 
 void GameState::init(int grid_size, int starting_tiles)

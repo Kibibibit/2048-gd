@@ -27,7 +27,7 @@ var animating: bool = false
 var interactive: bool = true
 
 func _ready() -> void:
-	game_state = GameState.new();
+	game_state = GameState.new(4, 3);
 	game_state.tile_added.connect(_on_tile_spawn);
 	game_state.tile_moved.connect(_on_tile_move);
 	game_state.init(4, 3);

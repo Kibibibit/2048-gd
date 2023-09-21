@@ -33,11 +33,12 @@ namespace godot {
 
         protected:
             static void _bind_methods();
+            
 
         public:
             GameState();
             ~GameState();
-
+            virtual void _init(int grid_size, int starting_tiles);
             void init(int grid_size, int starting_tiles);
 
             Ref<Grid2D> get_grid();
